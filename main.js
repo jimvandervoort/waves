@@ -18,15 +18,18 @@ function initCanvas() {
 	}
 }
 
-function step(noise, ctx, width, height, smoothness = 1) {
+function step(noise, ctx, width, height, offset = 0) {
 	console.log('step');
+	const smoothness = 100;
+	const speed = .3;
 
 	ctx.clearRect(0, 0, width, height);
 
 	for (let y = 0; y < height; y += 20) {
 		for (let x = 0; x < width; x += 20) {
-			const n = noise(x / smoothness, y / smoothness);
+			const n = noise((x + offset ) / smoothness, (y + offset) / smoothness);
 			const stepSize = 10;
+
 			ctx.beginPath();
 			ctx.moveTo(x, y);
 			ctx.lineTo(
@@ -39,11 +42,9 @@ function step(noise, ctx, width, height, smoothness = 1) {
 		}
 	}
 
-	setTimeout(() => {
-		requestAnimationFrame(() => {
-			step(noise, ctx, width, height, smoothness + 1)
-		});
-	}, smoothness / 10);
+	requestAnimationFrame(() => {
+		step(noise, ctx, width, height, offset + speed);
+	});
 }
 
 function run() {
