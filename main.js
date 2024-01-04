@@ -18,10 +18,8 @@ function initCanvas() {
 	}
 }
 
-function step(ctx, width, height) {
+function step(noise, ctx, width, height, smoothness = 1) {
 	console.log('step');
-	const noise = createNoise2D();
-	const smoothness = 1;
 
 	ctx.clearRect(0, 0, width, height);
 
@@ -43,16 +41,17 @@ function step(ctx, width, height) {
 
 	setTimeout(() => {
 		requestAnimationFrame(() => {
-			step(ctx, width, height)
+			step(noise, ctx, width, height, smoothness + 1)
 		});
-	}, 100);
+	}, smoothness / 10);
 }
 
 function run() {
 	const {ctx, width, height} = initCanvas();
+	const noise = createNoise2D();
 
 	requestAnimationFrame(() => {
-		step(ctx, width, height);
+		step(noise, ctx, width, height);
 	});
 }
 
