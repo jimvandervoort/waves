@@ -1,6 +1,10 @@
 import './style.css'
 import {createNoise2D} from 'simplex-noise';
 
+function mapToDegrees(n) {
+	return (n + 1) * 180;
+}
+
 function initCanvas() {
 	const canvas = document.querySelector('#wave');
 	const cs = getComputedStyle(canvas);
@@ -29,6 +33,7 @@ function step(noise, ctx, width, height, offset = 0) {
 		for (let x = 0; x < width; x += 20) {
 			const n = noise((x + offset ) / smoothness, (y + offset) / smoothness);
 			const stepSize = 10;
+			console.log(n);
 
 			ctx.beginPath();
 			ctx.moveTo(x, y);
@@ -37,7 +42,7 @@ function step(noise, ctx, width, height, offset = 0) {
 				y + Math.sin(n) * stepSize
 			);
 			ctx.closePath();
-			ctx.strokeStyle = '#979eab';
+			ctx.strokeStyle = `hsl(${mapToDegrees(n)}, 40%, 70%)`;
 			ctx.stroke();
 		}
 	}
