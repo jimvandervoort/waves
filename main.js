@@ -5,6 +5,15 @@ function mapToDegrees(n) {
 	return (n + 1) * 180;
 }
 
+// function that takes a number between a and b and returns a number between c and d
+function mapRange(n, a, b, c, d) {
+	return (n - a) * (d - c) / (b - a) + c;
+}
+
+let smoothness = 100;
+let speed = .3;
+let saturation = 40;
+
 function initCanvas() {
 	const canvas = document.querySelector('#wave');
 	const cs = getComputedStyle(canvas);
@@ -24,8 +33,8 @@ function initCanvas() {
 
 function step(noise, ctx, width, height, offset = 0) {
 	console.log('step');
-	const smoothness = 100;
-	const speed = .3;
+	// const smoothness = 100;
+	// const speed = .3;
 
 	ctx.clearRect(0, 0, width, height);
 
@@ -33,7 +42,6 @@ function step(noise, ctx, width, height, offset = 0) {
 		for (let x = 0; x < width; x += 20) {
 			const n = noise((x + offset ) / smoothness, (y + offset) / smoothness);
 			const stepSize = 10;
-			console.log(n);
 
 			ctx.beginPath();
 			ctx.moveTo(x, y);
@@ -42,7 +50,7 @@ function step(noise, ctx, width, height, offset = 0) {
 				y + Math.sin(n) * stepSize
 			);
 			ctx.closePath();
-			ctx.strokeStyle = `hsl(${mapToDegrees(n)}, 40%, 70%)`;
+			ctx.strokeStyle = `hsl(${mapToDegrees(n)}, ${saturation}%, 70%)`;
 			ctx.stroke();
 		}
 	}
@@ -58,6 +66,12 @@ function run() {
 
 	requestAnimationFrame(() => {
 		step(noise, ctx, width, height);
+	});
+
+	document.addEventListener('mousemove', (e) => {
+		// smoothness = mapRange(e.clientY, 0, window.innerHeight, 1, 100);
+		speed = mapRange(e.clientY, 0, window.innerHeight, .3, 2);
+		saturation = mapRange(e.clientX, 0, window.innerWidth, 0, 100);
 	});
 }
 
