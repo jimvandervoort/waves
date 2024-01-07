@@ -1,0 +1,6 @@
+# 🌊
+
+```
+pnpm install
+pnpm dev
+```
