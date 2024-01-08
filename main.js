@@ -1,23 +1,17 @@
 import './style.css'
 import {createNoise2D} from 'simplex-noise';
 
-function mapToDegrees(n) {
-	return (n + 1) * 180;
-}
-
+// Takes a number "n" and maps it from the range [a, b] to the range [c, d]
 function mapRange(n, a, b, c, d) {
 	return (n - a) * (d - c) / (b - a) + c;
 }
 
-function randBetween(a, b) {
-	return a + Math.floor((b - a) * Math.random());
-}
-
-function initRange(selector) {
+function initRange(selector, cb) {
 	const input = document.querySelector(selector);
-	let value = input.value;
+	let value = parseFloat(input.value);
 	input.addEventListener('input', (e) => {
-		value = e.target.value;
+		value = parseFloat(e.target.value);
+		cb();
 	});
 
 	return () => {
@@ -40,25 +34,36 @@ function initCanvas() {
 	}
 }
 
-function drawLine(noise, ctx, width, height, cs) {
-	let x = 0;
-	let y = randBetween(0, height);
+function drawLine(noise, ctx, cs, width, height, x, y) {
 	ctx.beginPath();
 	ctx.moveTo(x, y);
+	const xEnd = x + cs.length();
 
-	while (x < width) {
-		const n = noise(x / cs.smoothness(), y / cs.smoothness());
+	const hue = mapRange(noise(x, y), -1, 1, 0, width);
+	ctx.strokeStyle = `hsl(${hue}, ${cs.saturation()}%, 70%)`;
+
+	while (x < xEnd) {
+		const n = noise(x / cs.zoom(), y / cs.zoom());
 		x += Math.cos(n) * cs.jig();
 		y += Math.sin(n) * cs.jig();
 		ctx.lineTo(x, y);
 	}
 
-	ctx.strokeStyle = '#fff';
 	ctx.stroke();
 }
 
+function drawLines(noise, ctx, cs, width, height) {
+	ctx.clearRect(0, 0, width, height);
 
-function initControls() {
+	for (let y = 0; y < height; y += 20) {
+		for (let x = 0; x < width; x += 20) {
+			drawLine(noise, ctx, cs, width, height, x, y);
+		}
+	}
+}
+
+
+function initControls(updateCb) {
 	const c = document.querySelector('.controls');
 	if (localStorage.getItem('showControls') === 'true') {
 		c.classList.remove('hidden');
@@ -72,23 +77,34 @@ function initControls() {
 	});
 
 	return {
-		jig: initRange('#jig'),
-		smoothness: initRange('#smoothness'),
+		jig: initRange('#jig', updateCb),
+		zoom: initRange('#zoom', updateCb),
+		length: initRange('#length', updateCb),
+		saturation: initRange('#saturation', updateCb),
 	}
+}
+
+function debugControls(controls) {
+	if (location.hash !== '#debug') return;
+
+	let s = `New controls:\n`;
+	for (const c in controls) {
+		s += `  ${c}: ${controls[c]()}\n`;
+	}
+	console.log(s);
 }
 
 function run() {
 	const {ctx, width, height} = initCanvas();
 	const noise = createNoise2D();
-	const controls = initControls();
-
-	document.addEventListener('click', () => {
-		drawLine(noise, ctx, width, height, controls);
+	const controls = initControls(() => {
+		debugControls(controls);
+		drawLines(noise, ctx, controls, width, height);
 	});
 
-	for (let i = 0; i <= window.innerHeight / 10; i++) {
-		drawLine(noise, ctx, width, height, controls);
-	}
+	drawLines(noise, ctx, controls, width, height);
+
+
 }
 
 run();
