@@ -35,12 +35,13 @@ a:hover {
 }
 
 #wave {
+
 	flex: 1;
 	background-color: #282c34;
 }
 
 .controls {
-	width: 100%;
+	width: 30%;
 	padding: 1em;
 	position: absolute;
 	display: flex;

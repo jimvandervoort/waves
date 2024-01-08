@@ -34,6 +34,7 @@ function initControls(updateCb) {
 		saturation: initRange('#saturation', updateCb),
 		spacing: initRange('#spacing', updateCb),
 		speed: initRange('#speed', updateCb),
+		colorSpeed: initRange('#color-speed', updateCb),
 		warp: initRange('#warp', updateCb),
 		animate() {
 			return animate;
@@ -85,6 +86,7 @@ function snap(x, y) {
 	if (x > xStart && x < xEnd && y > yStart && y < yEnd) {
 		x = x < xStart + width ? xStart : xEnd;
 		y = y < yStart + height ? yStart : yEnd;
+		// return;
 	}
 
 	return [x, y];
@@ -92,20 +94,24 @@ function snap(x, y) {
 
 function drawLine(noise, ctx, cs, width, height, x, y, offset) {
 	ctx.beginPath();
-	ctx.moveTo(...snap(x, y));
-
-	const hue = mapRange(x + y + offset * 10, 0, width + height + offset, 0, 270);
-	ctx.strokeStyle = `hsl(${hue}, ${cs.saturation()}%, 70%)`;
+	const cords = snap(x, y);
+	if (cords) {
+		ctx.moveTo(...cords);
+	}
 
 	const lStart = cs.length() * (cs.lengthVariance() / 100);
 	const length = mapRange(noise(x + offset, y + offset), -1, 1, lStart, cs.length());
 	const xEnd = x + length;
 
+	const hue = mapRange(x + y + offset * 10, 0, width + height + offset, 0, 270);
+	ctx.strokeStyle = `hsl(${hue}, ${cs.saturation()}%, 70%)`;
+
 	while (x < xEnd) {
 		const n = noise((x + offset) / cs.zoom(), (y + offset) / cs.zoom());
 		x += Math.cos(n * cs.warp()) * cs.jig();
 		y += Math.sin(n * cs.warp()) * cs.jig();
-		ctx.lineTo(...snap(x, y));
+		const _cords = snap(x, y);
+		if (_cords) ctx.lineTo(..._cords);
 	}
 
 	ctx.stroke();
