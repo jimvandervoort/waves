@@ -94,7 +94,7 @@ function drawLine(noise, ctx, cs, width, height, x, y, offset) {
 	ctx.beginPath();
 	ctx.moveTo(...snap(x, y));
 
-	const hue = mapRange(x + y, 0, width + height, 0, 360);
+	const hue = mapRange(x + y + offset * 10, 0, width + height + offset, 0, 270);
 	ctx.strokeStyle = `hsl(${hue}, ${cs.saturation()}%, 70%)`;
 
 	const lStart = cs.length() * (cs.lengthVariance() / 100);
