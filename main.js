@@ -76,7 +76,7 @@ function drawLine(noise, ctx, cs, width, height, x, y, offset) {
 	ctx.beginPath();
 	ctx.moveTo(x, y);
 
-	const hue = mapRange(noise(x, y), -1, 1, 0, width);
+	const hue = mapRange(x + y, 0, width + height, 0, 360);
 	ctx.strokeStyle = `hsl(${hue}, ${cs.saturation()}%, 70%)`;
 
 	const lStart = cs.length() * (cs.lengthVariance() / 100);
