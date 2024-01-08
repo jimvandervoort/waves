@@ -5,24 +5,33 @@ function mapToDegrees(n) {
 	return (n + 1) * 180;
 }
 
-// function that takes a number between a and b and returns a number between c and d
 function mapRange(n, a, b, c, d) {
 	return (n - a) * (d - c) / (b - a) + c;
 }
 
-let smoothness = 100;
-let speed = .3;
-let saturation = 40;
+function randBetween(a, b) {
+	return a + Math.floor((b - a) * Math.random());
+}
+
+function initRange(selector) {
+	const input = document.querySelector(selector);
+	let value = input.value;
+	input.addEventListener('input', (e) => {
+		value = e.target.value;
+	});
+
+	return () => {
+		return value;
+	}
+}
 
 function initCanvas() {
 	const canvas = document.querySelector('#wave');
 	const cs = getComputedStyle(canvas);
 	const width = parseInt(cs.width, 10);
 	const height = parseInt(cs.height, 10);
-
-	const ratio = devicePixelRatio ?? 1;
-	canvas.width = width * ratio;
-	canvas.height = height * ratio;
+	canvas.width = width;
+	canvas.height = height;
 
 	return {
 		width,
@@ -31,48 +40,55 @@ function initCanvas() {
 	}
 }
 
-function step(noise, ctx, width, height, offset = 0) {
-	console.log('step');
-	// const smoothness = 100;
-	// const speed = .3;
+function drawLine(noise, ctx, width, height, cs) {
+	let x = 0;
+	let y = randBetween(0, height);
+	ctx.beginPath();
+	ctx.moveTo(x, y);
 
-	ctx.clearRect(0, 0, width, height);
-
-	for (let y = 0; y < height; y += 20) {
-		for (let x = 0; x < width; x += 20) {
-			const n = noise((x + offset ) / smoothness, (y + offset) / smoothness);
-			const stepSize = 10;
-
-			ctx.beginPath();
-			ctx.moveTo(x, y);
-			ctx.lineTo(
-				x + Math.cos(n) * stepSize,
-				y + Math.sin(n) * stepSize
-			);
-			ctx.closePath();
-			ctx.strokeStyle = `hsl(${mapToDegrees(n)}, ${saturation}%, 70%)`;
-			ctx.stroke();
-		}
+	while (x < width) {
+		const n = noise(x / cs.smoothness(), y / cs.smoothness());
+		x += Math.cos(n) * cs.jig();
+		y += Math.sin(n) * cs.jig();
+		ctx.lineTo(x, y);
 	}
 
-	requestAnimationFrame(() => {
-		step(noise, ctx, width, height, offset + speed);
+	ctx.strokeStyle = '#fff';
+	ctx.stroke();
+}
+
+
+function initControls() {
+	const c = document.querySelector('.controls');
+	if (localStorage.getItem('showControls') === 'true') {
+		c.classList.remove('hidden');
+	}
+
+	window.addEventListener('keypress', (e) => {
+		if (e.key === 'c') {
+			localStorage.setItem('showControls', `${c.classList.contains('hidden')}`);
+			c.classList.toggle('hidden');
+		}
 	});
+
+	return {
+		jig: initRange('#jig'),
+		smoothness: initRange('#smoothness'),
+	}
 }
 
 function run() {
 	const {ctx, width, height} = initCanvas();
 	const noise = createNoise2D();
+	const controls = initControls();
 
-	requestAnimationFrame(() => {
-		step(noise, ctx, width, height);
+	document.addEventListener('click', () => {
+		drawLine(noise, ctx, width, height, controls);
 	});
 
-	document.addEventListener('mousemove', (e) => {
-		// smoothness = mapRange(e.clientY, 0, window.innerHeight, 1, 100);
-		speed = mapRange(e.clientY, 0, window.innerHeight, .3, 2);
-		saturation = mapRange(e.clientX, 0, window.innerWidth, 0, 100);
-	});
+	for (let i = 0; i <= window.innerHeight / 10; i++) {
+		drawLine(noise, ctx, width, height, controls);
+	}
 }
 
 run();

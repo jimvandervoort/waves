@@ -33,3 +33,19 @@ body {
 	flex: 1;
 	background-color: #282c34;
 }
+
+.controls {
+	padding: 1em;
+	position: absolute;
+	display: flex;
+	flex-direction: column;
+	background: rgba(255, 255, 255, .6);
+}
+
+.controls label {
+	margin-top: .5em;
+}
+
+.hidden {
+	display: none;
+}
