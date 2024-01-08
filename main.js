@@ -61,8 +61,8 @@ function initControls(updateCb) {
 function initCanvas() {
 	const canvas = document.querySelector('#wave');
 	const cs = getComputedStyle(canvas);
-	const width = parseFloat(cs.width, 10);
-	const height = parseInt(cs.height, 10);
+	const width = parseInt(cs.width);
+	const height = parseInt(cs.height);
 	canvas.width = width;
 	canvas.height = height;
 
@@ -73,6 +73,7 @@ function initCanvas() {
 	}
 }
 
+let flip = false;
 function snap(x, y) {
 	const width = 100;
 	const height = 100;
@@ -83,15 +84,18 @@ function snap(x, y) {
 	const yEnd = (window.innerHeight / 2) + height;
 
 	// If coordinates are inside the box
-	if (x > xStart && x < xEnd && y > yStart && y < yEnd) {
+	let isInside = x > xStart && x < xEnd && y > yStart && y < yEnd;
+	if (flip) isInside = !isInside
+
+	if (isInside) {
 		x = x < xStart + width ? xStart : xEnd;
 		y = y < yStart + height ? yStart : yEnd;
-		// return;
 	}
 
 	return [x, y];
 }
 
+let zoom = 220;
 function drawLine(noise, ctx, cs, width, height, x, y, offset) {
 	ctx.beginPath();
 	const cords = snap(x, y);
@@ -107,7 +111,7 @@ function drawLine(noise, ctx, cs, width, height, x, y, offset) {
 	ctx.strokeStyle = `hsl(${hue}, ${cs.saturation()}%, 70%)`;
 
 	while (x < xEnd) {
-		const n = noise((x + offset) / cs.zoom(), (y + offset) / cs.zoom());
+		const n = noise((x + offset) / zoom, (y + offset) / zoom);
 		x += Math.cos(n * cs.warp()) * cs.jig();
 		y += Math.sin(n * cs.warp()) * cs.jig();
 		const _cords = snap(x, y);
@@ -116,6 +120,8 @@ function drawLine(noise, ctx, cs, width, height, x, y, offset) {
 
 	ctx.stroke();
 }
+
+let speed = 1;
 
 function drawLines(noise, ctx, cs, width, height, offset = 0) {
 	ctx.clearRect(0, 0, width, height);
@@ -128,7 +134,7 @@ function drawLines(noise, ctx, cs, width, height, offset = 0) {
 
 	if (cs.animate()) {
 		requestAnimationFrame(() => {
-			drawLines(noise, ctx, cs, width, height, offset + cs.speed());
+			drawLines(noise, ctx, cs, width, height, offset + speed);
 		});
 	}
 }
@@ -150,6 +156,26 @@ function run() {
 	});
 
 	drawLines(noise, ctx, controls, width, height);
+
+	window.addEventListener('mousemove', (e) => {
+		const x = e.clientX;
+		const y = e.clientY;
+		speed = mapRange(x, 0, window.innerWidth, 1, 10);
+		zoom = mapRange(y, 0, window.innerHeight, 100, 400);
+
+		// TODO this is a mess and repetative
+		const boxW = 100;
+		const boxH = 100;
+		const xStart = (window.innerWidth / 2) - boxW;
+		const xEnd = (window.innerWidth / 2) + boxW;
+		const yStart = (window.innerHeight / 2) - boxH;
+		const yEnd = (window.innerHeight / 2) + boxH;
+
+		flip = x > xStart && x < xEnd && y > yStart && y < yEnd;
+		if (flip) {
+			speed = .3;
+		}
+	});
 }
 
 run();
