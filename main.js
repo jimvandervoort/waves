@@ -72,9 +72,27 @@ function initCanvas() {
 	}
 }
 
+function snap(x, y) {
+	const width = 100;
+	const height = 100;
+
+	const xStart = (window.innerWidth / 2) - width;
+	const xEnd = (window.innerWidth / 2) + width;
+	const yStart = (window.innerHeight / 2) - height;
+	const yEnd = (window.innerHeight / 2) + height;
+
+	// If coordinates are inside the box
+	if (x > xStart && x < xEnd && y > yStart && y < yEnd) {
+		x = x < xStart + width ? xStart : xEnd;
+		y = y < yStart + height ? yStart : yEnd;
+	}
+
+	return [x, y];
+}
+
 function drawLine(noise, ctx, cs, width, height, x, y, offset) {
 	ctx.beginPath();
-	ctx.moveTo(x, y);
+	ctx.moveTo(...snap(x, y));
 
 	const hue = mapRange(x + y, 0, width + height, 0, 360);
 	ctx.strokeStyle = `hsl(${hue}, ${cs.saturation()}%, 70%)`;
@@ -87,7 +105,7 @@ function drawLine(noise, ctx, cs, width, height, x, y, offset) {
 		const n = noise((x + offset) / cs.zoom(), (y + offset) / cs.zoom());
 		x += Math.cos(n * cs.warp()) * cs.jig();
 		y += Math.sin(n * cs.warp()) * cs.jig();
-		ctx.lineTo(x, y);
+		ctx.lineTo(...snap(x, y));
 	}
 
 	ctx.stroke();
