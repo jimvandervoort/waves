@@ -8,9 +8,9 @@ function mapRange(n, a, b, c, d) {
 
 function initRange(selector, cb) {
 	const input = document.querySelector(selector);
-	let value = parseFloat(input.value);
+	let value = parseInt(input.value, 10);
 	input.addEventListener('input', (e) => {
-		value = parseFloat(e.target.value);
+		value = parseInt(e.target.value, 10);
 		cb();
 	});
 
@@ -34,7 +34,7 @@ function initCanvas() {
 	}
 }
 
-function drawLine(noise, ctx, cs, width, height, x, y) {
+function drawLine(noise, ctx, cs, width, height, x, y, offset) {
 	ctx.beginPath();
 	ctx.moveTo(x, y);
 	const xEnd = x + cs.length();
@@ -43,7 +43,7 @@ function drawLine(noise, ctx, cs, width, height, x, y) {
 	ctx.strokeStyle = `hsl(${hue}, ${cs.saturation()}%, 70%)`;
 
 	while (x < xEnd) {
-		const n = noise(x / cs.zoom(), y / cs.zoom());
+		const n = noise((x + offset) / cs.zoom(), (y + offset) / cs.zoom());
 		x += Math.cos(n) * cs.jig();
 		y += Math.sin(n) * cs.jig();
 		ctx.lineTo(x, y);
@@ -52,14 +52,18 @@ function drawLine(noise, ctx, cs, width, height, x, y) {
 	ctx.stroke();
 }
 
-function drawLines(noise, ctx, cs, width, height) {
+function drawLines(noise, ctx, cs, width, height, offset = 0) {
 	ctx.clearRect(0, 0, width, height);
 
-	for (let y = 0; y < height; y += 20) {
-		for (let x = 0; x < width; x += 20) {
-			drawLine(noise, ctx, cs, width, height, x, y);
+	for (let y = 0; y < height; y += cs.spacing()) {
+		for (let x = 0; x < width; x += cs.spacing()) {
+			drawLine(noise, ctx, cs, width, height, x, y, offset);
 		}
 	}
+
+	requestAnimationFrame(() => {
+		drawLines(noise, ctx, cs, width, height, offset + cs.speed());
+	});
 }
 
 
@@ -81,12 +85,12 @@ function initControls(updateCb) {
 		zoom: initRange('#zoom', updateCb),
 		length: initRange('#length', updateCb),
 		saturation: initRange('#saturation', updateCb),
+		spacing: initRange('#spacing', updateCb),
+		speed: initRange('#speed', updateCb),
 	}
 }
 
 function debugControls(controls) {
-	if (location.hash !== '#debug') return;
-
 	let s = `New controls:\n`;
 	for (const c in controls) {
 		s += `  ${c}: ${controls[c]()}\n`;
@@ -99,12 +103,9 @@ function run() {
 	const noise = createNoise2D();
 	const controls = initControls(() => {
 		debugControls(controls);
-		drawLines(noise, ctx, controls, width, height);
 	});
 
 	drawLines(noise, ctx, controls, width, height);
-
-
 }
 
 run();
