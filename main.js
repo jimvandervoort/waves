@@ -175,6 +175,10 @@ function run() {
 		if (flip) {
 			speed = .3;
 		}
+
+		document.addEventListener('click', () => {
+			flip = !flip;
+		});
 	});
 }
 
