@@ -13,6 +13,17 @@
 	-moz-osx-font-smoothing: grayscale;
 }
 
+*, *::before, *::after {
+	box-sizing: border-box;
+}
+
+body {
+	margin: 0;
+	display: flex;
+	min-width: 320px;
+	min-height: 100vh;
+}
+
 a {
 	font-weight: 500;
 	color: #646cff;
@@ -23,19 +34,13 @@ a:hover {
 	color: #747bff;
 }
 
-body {
-	margin: 0;
-	display: flex;
-	min-width: 320px;
-	min-height: 100vh;
-}
-
 #wave {
 	flex: 1;
 	background-color: #282c34;
 }
 
 .controls {
+	width: 100%;
 	padding: 1em;
 	position: absolute;
 	display: flex;

@@ -8,9 +8,9 @@ function mapRange(n, a, b, c, d) {
 
 function initRange(selector, cb) {
 	const input = document.querySelector(selector);
-	let value = parseInt(input.value, 10);
+	let value = parseFloat(input.value);
 	input.addEventListener('input', (e) => {
-		value = parseInt(e.target.value, 10);
+		value = parseFloat(e.target.value);
 		cb();
 	});
 
@@ -19,10 +19,48 @@ function initRange(selector, cb) {
 	}
 }
 
+function initControls(updateCb) {
+	const c = document.querySelector('.controls');
+	if (localStorage.getItem('showControls') === 'true') {
+		c.classList.remove('hidden');
+	}
+
+	let animate = localStorage.getItem('animate') !== 'false';
+	const controls = {
+		jig: initRange('#jig', updateCb),
+		zoom: initRange('#zoom', updateCb),
+		length: initRange('#length', updateCb),
+		lengthVariance: initRange('#length-variance', updateCb),
+		saturation: initRange('#saturation', updateCb),
+		spacing: initRange('#spacing', updateCb),
+		speed: initRange('#speed', updateCb),
+		warp: initRange('#warp', updateCb),
+		animate() {
+			return animate;
+		}
+	};
+
+	window.addEventListener('keypress', (e) => {
+		if (e.key === 'c') {
+			localStorage.setItem('showControls', `${c.classList.contains('hidden')}`);
+			c.classList.toggle('hidden');
+		}
+
+		if (e.key === 'a') {
+			animate = !controls.animate();
+			localStorage.setItem('animate', `${animate}`);
+		}
+
+		updateCb();
+	});
+
+	return controls
+}
+
 function initCanvas() {
 	const canvas = document.querySelector('#wave');
 	const cs = getComputedStyle(canvas);
-	const width = parseInt(cs.width, 10);
+	const width = parseFloat(cs.width, 10);
 	const height = parseInt(cs.height, 10);
 	canvas.width = width;
 	canvas.height = height;
@@ -37,15 +75,18 @@ function initCanvas() {
 function drawLine(noise, ctx, cs, width, height, x, y, offset) {
 	ctx.beginPath();
 	ctx.moveTo(x, y);
-	const xEnd = x + cs.length();
 
 	const hue = mapRange(noise(x, y), -1, 1, 0, width);
 	ctx.strokeStyle = `hsl(${hue}, ${cs.saturation()}%, 70%)`;
 
+	const lStart = cs.length() * (cs.lengthVariance() / 100);
+	const length = mapRange(noise(x + offset, y + offset), -1, 1, lStart, cs.length());
+	const xEnd = x + length;
+
 	while (x < xEnd) {
 		const n = noise((x + offset) / cs.zoom(), (y + offset) / cs.zoom());
-		x += Math.cos(n) * cs.jig();
-		y += Math.sin(n) * cs.jig();
+		x += Math.cos(n * cs.warp()) * cs.jig();
+		y += Math.sin(n * cs.warp()) * cs.jig();
 		ctx.lineTo(x, y);
 	}
 
@@ -61,32 +102,10 @@ function drawLines(noise, ctx, cs, width, height, offset = 0) {
 		}
 	}
 
-	requestAnimationFrame(() => {
-		drawLines(noise, ctx, cs, width, height, offset + cs.speed());
-	});
-}
-
-
-function initControls(updateCb) {
-	const c = document.querySelector('.controls');
-	if (localStorage.getItem('showControls') === 'true') {
-		c.classList.remove('hidden');
-	}
-
-	window.addEventListener('keypress', (e) => {
-		if (e.key === 'c') {
-			localStorage.setItem('showControls', `${c.classList.contains('hidden')}`);
-			c.classList.toggle('hidden');
-		}
-	});
-
-	return {
-		jig: initRange('#jig', updateCb),
-		zoom: initRange('#zoom', updateCb),
-		length: initRange('#length', updateCb),
-		saturation: initRange('#saturation', updateCb),
-		spacing: initRange('#spacing', updateCb),
-		speed: initRange('#speed', updateCb),
+	if (cs.animate()) {
+		requestAnimationFrame(() => {
+			drawLines(noise, ctx, cs, width, height, offset + cs.speed());
+		});
 	}
 }
 
@@ -103,6 +122,7 @@ function run() {
 	const noise = createNoise2D();
 	const controls = initControls(() => {
 		debugControls(controls);
+		drawLines(noise, ctx, controls, width, height);
 	});
 
 	drawLines(noise, ctx, controls, width, height);
