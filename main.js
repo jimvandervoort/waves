@@ -163,7 +163,7 @@ function run() {
 		speed = mapRange(x, 0, window.innerWidth, 1, 10);
 		zoom = mapRange(y, 0, window.innerHeight, 100, 400);
 
-		// TODO this is a mess and repetative
+		// TODO this is a mess and repetitive
 		const boxW = 100;
 		const boxH = 100;
 		const xStart = (window.innerWidth / 2) - boxW;
