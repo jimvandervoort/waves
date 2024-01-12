@@ -47,7 +47,9 @@ export const attachKeyToggle = (state, prop, key, initialValue) => {
 	});
 }
 
-export const attachClickToggle = (state, prop, elem) => {
+export const attachClickToggle = (state, prop, elem, initialValue) => {
+	state[prop] = initialValue;
+
 	if (typeof elem === 'string') {
 		elem = document.querySelector(elem);
 	}
