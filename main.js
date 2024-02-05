@@ -43,26 +43,6 @@ function applyGravity(x, y, gx, gy, gravityStrength) {
 	return [ newX, newY ];
 }
 
-function snap(state, x, y) {
-	const width = 30;
-	const height = 30;
-
-	const xStart = (window.innerWidth / 2) - width;
-	const xEnd = (window.innerWidth / 2) + width;
-	const yStart = (window.innerHeight / 2) - height;
-	const yEnd = (window.innerHeight / 2) + height;
-
-	([x, y] = applyGravity(x, y, window.innerWidth / 2, window.innerHeight / 2, state.gravity));
-
-	// If coordinates are inside the box
-	let isInside = x > xStart && x < xEnd && y > yStart && y < yEnd;
-	if (isInside) {
-		return;
-	}
-
-	return [x, y];
-}
-
 function drawDot(noise, ctx, state, width, height, x, y, offset) {
 	ctx.beginPath();
 	ctx.strokeStyle = `hsl(${noise(x / state.zoom, y / state.zoom) * 360}, ${state.saturation}%, 50%)`;
@@ -71,7 +51,7 @@ function drawDot(noise, ctx, state, width, height, x, y, offset) {
 	ctx.strokeStyle = `hsl(${n * 360}, ${state.saturation}%, 50%)`;
 	x += Math.cos(n * state.warp) * state.jig;
 	y += Math.sin(n * state.warp) * state.jig;
-	const cords = snap(state, x, y);
+	const cords = applyGravity(x, y, window.innerWidth / 2, window.innerHeight / 2, state.gravity);
 	if (cords) {
 		ctx.arc(...cords, 1, 0, 2 * Math.PI);
 	}
