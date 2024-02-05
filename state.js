@@ -41,11 +41,10 @@ export const attachKeyToggle = (state, prop, key, initialValue, updateCb) => {
 	document.addEventListener('keypress', (e) => {
 		if (e.key === key) {
 			state[prop] = !state[prop];
+			if (updateCb) updateCb();
 		}
 
 		localStorage.setItem(prop, `${state[prop]}`);
-
-		if (updateCb) updateCb();
 	});
 }
 
