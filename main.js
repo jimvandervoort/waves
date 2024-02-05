@@ -2,6 +2,11 @@ import './style.css'
 import {createNoise2D} from 'simplex-noise';
 import {attachClickToggle, attachInput, attachKeyToggle, makeState} from "./state.js";
 
+// Takes a number "n" and maps it from the range [a, b] to the range [c, d]
+function mapRange(n, a, b, c, d) {
+	return (n - a) * (d - c) / (b - a) + c;
+}
+
 function initCanvas() {
 	const canvas = document.querySelector('#wave');
 	const cs = getComputedStyle(canvas);
@@ -101,16 +106,16 @@ function debugState(state) {
 function run() {
 	const {ctx, width, height} = initCanvas();
 	const noise = createNoise2D();
-
 	const { state, onUpdate } = makeState();
-	attachInput(state, 'warp', '#warp');
+
+	attachInput(state, 'warp', '#warp') ;
 	attachInput(state, 'jig', '#jig');
 	attachInput(state, 'zoom', '#zoom');
 	attachInput(state, 'saturation', '#saturation');
 	attachInput(state, 'spacing', '#spacing');
 	attachInput(state, 'speed', '#speed');
 	attachInput(state, 'gravity', '#gravity');
-	attachKeyToggle(state, 'showControls', 'c', false);
+	attachKeyToggle(state, 'mouse', 'm', true);
 
 	attachKeyToggle(state, 'animate', 'a', true, () => {
 		if (state.animate) {
@@ -122,10 +127,21 @@ function run() {
 		debugState(state);
 
 		if (state.showControls) {
-			document.querySelector('#controls').classList.add('hidden');
-		} else {
 			document.querySelector('#controls').classList.remove('hidden');
+		} else {
+			document.querySelector('#controls').classList.add('hidden');
 		}
+	});
+
+	attachKeyToggle(state, 'showControls', 'c', false);
+
+	document.addEventListener('mousemove', (e) => {
+		if (state.showControls || !state.mouse) {
+			return;
+		}
+
+		state.jig = mapRange(e.clientX, 0, window.innerWidth, 0, 100);
+		state.gravity = mapRange(e.clientY, 0, window.innerHeight, -200, 1000);
 	});
 
 	drawDots(noise, ctx, state, width, height);
