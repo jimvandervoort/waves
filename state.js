@@ -30,7 +30,7 @@ export const attachInput = (state, prop, selector) => {
 	});
 }
 
-export const attachKeyToggle = (state, prop, key, initialValue) => {
+export const attachKeyToggle = (state, prop, key, initialValue, updateCb) => {
 	const stored = localStorage.getItem(prop);
 	if (stored === null) {
 		state[prop] = initialValue;
@@ -44,6 +44,8 @@ export const attachKeyToggle = (state, prop, key, initialValue) => {
 		}
 
 		localStorage.setItem(prop, `${state[prop]}`);
+
+		if (updateCb) updateCb();
 	});
 }
 

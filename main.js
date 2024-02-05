@@ -103,7 +103,6 @@ function run() {
 	const noise = createNoise2D();
 
 	const { state, onUpdate } = makeState();
-	state.flip = false;
 	attachInput(state, 'warp', '#warp');
 	attachInput(state, 'jig', '#jig');
 	attachInput(state, 'zoom', '#zoom');
@@ -111,9 +110,13 @@ function run() {
 	attachInput(state, 'spacing', '#spacing');
 	attachInput(state, 'speed', '#speed');
 	attachInput(state, 'gravity', '#gravity');
-	attachClickToggle(state, 'flip', '#wave', false);
-	attachKeyToggle(state, 'animate', 'a', true);
 	attachKeyToggle(state, 'showControls', 'c', false);
+
+	attachKeyToggle(state, 'animate', 'a', true, () => {
+		if (state.animate) {
+			drawDots(noise, ctx, state, width, height);
+		}
+	});
 
 	onUpdate(() => {
 		debugState(state);
