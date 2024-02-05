@@ -60,10 +60,10 @@ function snap(state, x, y) {
 
 function drawDot(noise, ctx, state, width, height, x, y, offset) {
 	ctx.beginPath();
-
-	ctx.strokeStyle = `#fff`;
+	ctx.strokeStyle = `hsl(${noise(x / state.zoom, y / state.zoom) * 360}, ${state.saturation}%, 50%)`;
 
 	const n = noise((x + offset) / state.zoom, (y + offset) / state.zoom);
+	ctx.strokeStyle = `hsl(${n * 360}, ${state.saturation}%, 50%)`;
 	x += Math.cos(n * state.warp) * state.jig;
 	y += Math.sin(n * state.warp) * state.jig;
 	const cords = snap(state, x, y);
