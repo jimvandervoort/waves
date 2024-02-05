@@ -103,6 +103,42 @@ function debugState(state) {
 	console.log(s);
 }
 
+function handleOrientationEvent(state, event) {
+	state.jig = mapRange(Math.round(event.alpha), 0, 360, 20, 40);
+	state.warp = mapRange(Math.round(event.beta), -180, 180, 0.00001, 100);
+	state.zoom = mapRange(Math.round(event.gamma), -90, 90, 0.00001, 4000);
+	if (event.webkitCompassHeading) {
+		state.gravity = mapRange(Math.round(event.webkitCompassHeading), 0, 360, 0, 500);
+	}
+}
+
+function initOrientationEvent(state) {
+	if (!window.DeviceOrientationEvent) {
+		return;
+	}
+
+	if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+		document.getElementById('wave').addEventListener('click', function () {
+			// Request permission
+			DeviceOrientationEvent.requestPermission()
+				.then(permissionState => {
+					if (permissionState === 'granted') {
+						window.addEventListener('deviceorientation', (event) => {
+							handleOrientationEvent(state, event);
+						}, true);
+					} else {
+						alert("Permission to access device orientation was denied.");
+					}
+				})
+				.catch(console.error);
+		});
+	} else {
+		window.addEventListener('deviceorientation', (event) => {
+			handleOrientationEvent(state, event);
+		}, true);
+	}
+}
+
 function run() {
 	const {ctx, width, height} = initCanvas();
 	const noise = createNoise2D();
@@ -144,6 +180,7 @@ function run() {
 		state.gravity = mapRange(e.clientY, 0, window.innerHeight, -200, 1000);
 	});
 
+	initOrientationEvent(state);
 	drawDots(noise, ctx, state, width, height);
 }
 

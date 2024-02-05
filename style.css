@@ -22,6 +22,7 @@ body {
 	display: flex;
 	min-width: 320px;
 	min-height: 100vh;
+	background-color: #282c34;
 }
 
 a {
@@ -35,7 +36,6 @@ a:hover {
 }
 
 #wave {
-
 	flex: 1;
 	background-color: #282c34;
 }
