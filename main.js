@@ -84,12 +84,13 @@ function debugState(state) {
 }
 
 function handleOrientationEvent(state, event) {
-	state.jig = mapRange(Math.round(event.alpha), 0, 360, 20, 40);
-	state.warp = mapRange(Math.round(event.beta), -180, 180, 0.00001, 100);
-	state.zoom = mapRange(Math.round(event.gamma), -90, 90, 0.00001, 4000);
-	if (event.webkitCompassHeading) {
-		state.gravity = mapRange(Math.round(event.webkitCompassHeading), 0, 360, 0, 500);
-	}
+	const rotateDegrees = event.alpha;
+	const frontToBack = event.beta;
+	const leftToRight = event.gamma;
+
+	state.jig = mapRange(rotateDegrees, 0, 360, 0, 40);
+	state.warp = mapRange(frontToBack, -180, 180, 0.00001, 100);
+	state.gravity = mapRange(leftToRight, -90, 90, 0, 500);
 }
 
 function initOrientationEvent(state) {
