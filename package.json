@@ -6,9 +6,12 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+	"lt": "curl -4 icanhazip.com && concurrently \"lt --port 1337\" \"vite --port 1337\""
   },
   "devDependencies": {
+    "concurrently": "^8.2.2",
+    "localtunnel": "^2.0.2",
     "vite": "^5.0.8"
   },
   "dependencies": {
