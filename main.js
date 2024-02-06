@@ -7,6 +7,19 @@ function mapRange(n, a, b, c, d) {
 	return (n - a) * (d - c) / (b - a) + c;
 }
 
+function mapRangeWrapAround(n, a, b, c, d) {
+	const midPoint = (a + b) / 2;
+	if (n === b) {
+		return c; // Wrap back to the start of the range
+	} else if (n <= midPoint) {
+		// Scale n in [a, midPoint] to [c, d]
+		return c + ((n - a) / (midPoint - a)) * (d - c);
+	} else {
+		// Scale n in [midPoint, b] back to [c, d] in reverse
+		return d - ((n - midPoint) / (b - midPoint)) * (d - c);
+	}
+}
+
 function initCanvas() {
 	const canvas = document.querySelector('#wave');
 	const cs = getComputedStyle(canvas);
@@ -80,6 +93,7 @@ function debugState(state) {
 	for (const c in state) {
 		s += `  ${c}: ${state[c]}\n`;
 	}
+	console.clear();
 	console.log(s);
 }
 
@@ -88,9 +102,9 @@ function handleOrientationEvent(state, event) {
 	const frontToBack = event.beta;
 	const leftToRight = event.gamma;
 
-	state.jig = mapRange(rotateDegrees, 0, 360, 0, 40);
-	state.warp = mapRange(frontToBack, -180, 180, 0.00001, 100);
-	state.gravity = mapRange(leftToRight, -90, 90, 0, 500);
+	state.jig = mapRangeWrapAround(rotateDegrees, 0, 360, 0, 50);
+	state.warp = mapRangeWrapAround(frontToBack, -180, 180, 1, 10);
+	state.gravity = mapRangeWrapAround(leftToRight, -90, 90, 0, 300);
 }
 
 function initOrientationEvent(state) {
