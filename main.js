@@ -7,6 +7,10 @@ function mapRange(n, a, b, c, d) {
 	return (n - a) * (d - c) / (b - a) + c;
 }
 
+function lerp(start, end, t) {
+	return start * (1 - t) + end * t;
+}
+
 function mapRangeWrapAround(n, a, b, c, d) {
 	const midPoint = (a + b) / 2;
 	if (n === b) {
@@ -97,14 +101,19 @@ function debugState(state) {
 	console.log(s);
 }
 
-function handleOrientationEvent(state, event) {
-	const rotateDegrees = event.alpha;
-	const frontToBack = event.beta;
-	const leftToRight = event.gamma;
+let currentAlpha = 0;
+let currentBeta = 0;
+let currentGamma = 0;
+const smoothingFactor = 0.1;
 
-	state.jig = mapRangeWrapAround(rotateDegrees, 0, 360, 0, 50);
-	state.warp = mapRangeWrapAround(frontToBack, -180, 180, 1, 10);
-	state.gravity = mapRangeWrapAround(leftToRight, -90, 90, 0, 300);
+function handleOrientationEvent(state, event) {
+	currentAlpha = lerp(currentAlpha, event.alpha, smoothingFactor);
+	currentBeta = lerp(currentBeta, event.beta, smoothingFactor);
+	currentGamma = lerp(currentGamma, event.gamma, smoothingFactor);
+
+	state.jig = mapRangeWrapAround(currentAlpha, 0, 360, 0, 50);
+	state.warp = mapRangeWrapAround(currentBeta, -180, 180, 1, 10);
+	state.gravity = mapRangeWrapAround(currentGamma, -90, 90, 0, 300);
 }
 
 function initOrientationEvent(state) {
