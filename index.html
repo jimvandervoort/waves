@@ -8,25 +8,25 @@
 <body>
 <div id="controls" class="controls hidden">
 	<label for="jig">Jig</label>
-	<input type="range" id="jig" name="jig" min="0" step="1" max="100" value="30"/>
+	<input type="range" id="jig" name="jig" min="0" max="100" step="0.1" value="30"/>
 
 	<label for="zoom">Zoom</label>
-	<input type="range" id="zoom" name="zoom" min=".001" max="4000" value="220"/>
+	<input type="range" id="zoom" name="zoom" min=".001" max="4000" step="0.1" value="220"/>
 
 	<label for="saturation">Saturation</label>
-	<input type="range" id="saturation" name="saturation" min="0" max="100" value="70"/>
+	<input type="range" id="saturation" name="saturation" min="0" max="100" step="0.1" value="70"/>
 
 	<label for="spacing">Spacing</label>
-	<input type="range" id="spacing" name="spacing" min="3" max="100" value="10"/>
+	<input type="range" id="spacing" name="spacing" min="3" max="100" step="0.1" value="10"/>
 
 	<label for="speed">Speed</label>
 	<input type="range" id="speed" name="speed" min="0" max="5" step="0.01" value=".3"/>
 
 	<label for="warp">Warp</label>
-	<input type="range" id="warp" name="warp" min="1" max="100" value="2"/>
+	<input type="range" id="warp" name="warp" min="1" max="100" step="0.1" value="2"/>
 
 	<label for="gravity">Gravity</label>
-	<input type="range" id="gravity" name="gravity" min="-200" max="1000" value="500">
+	<input type="range" id="gravity" name="gravity" min="-200" max="1000" step="0.1" value="500">
 </div>
 <canvas id="wave" width="0" height="0"></canvas>
 <script type="module" src="/main.js"></script>
