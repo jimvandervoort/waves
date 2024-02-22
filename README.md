@@ -1,4 +1,4 @@
-# 🌊
+# [🌊 jim.computer](https://jim.computer/)
 
 ```
 pnpm install
